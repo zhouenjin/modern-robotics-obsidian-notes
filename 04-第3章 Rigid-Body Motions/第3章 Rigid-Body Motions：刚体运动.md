@@ -362,6 +362,42 @@ $$
 SE(3)
 $$
 
+### 6.1.1 记号 $T_{ab}$ 到底是什么意思
+
+课程里：
+
+$$
+T_{ab}
+$$
+
+表示 **frame `{b}` 相对于 frame `{a}` 的位姿，并且矩阵元素用 `{a}` 坐标系表达**。
+
+所以：
+
+- 第二个下标 `b` 告诉你“谁被描述”
+- 第一个下标 `a` 告诉你“结果在哪个坐标系里表达”
+
+例如：
+
+$$
+T_{af}
+$$
+
+表示 force sensor frame `{f}` relative to apple frame `{a}`。  
+如果 `{f}` 在 `{a}` 的 $x$ 方向左侧距离为 $L$，那么：
+
+$$
+T_{af} =
+\begin{bmatrix}
+1&0&0&-L\\
+0&1&0&0\\
+0&0&1&0\\
+0&0&0&1
+\end{bmatrix}
+$$
+
+而不是 $T_{fa}$。因为 $T_{fa}$ 的含义正好反过来。
+
 ### 6.2 课程对齐次变换的三个常见用途
 
 这部分是课程里特别强调的：
@@ -505,6 +541,122 @@ $$
 $$
 se(3)
 $$
+
+### 7.5 Adjoint 变换矩阵是什么
+
+如果
+
+$$
+T =
+\begin{bmatrix}
+R & p \\
+0 & 1
+\end{bmatrix}
+\in SE(3)
+$$
+
+那么它对应的 Adjoint 矩阵定义为：
+
+$$
+\operatorname{Ad}_T =
+\begin{bmatrix}
+R & 0 \\
+[p]R & R
+\end{bmatrix}
+$$
+
+这里
+
+$$
+[p] =
+\begin{bmatrix}
+0 & -p_3 & p_2 \\
+p_3 & 0 & -p_1 \\
+-p_2 & p_1 & 0
+\end{bmatrix}
+$$
+
+它是一个 $6\times6$ 矩阵，用来变换 twist / screw axis 的坐标表达。
+
+最常见公式是：
+
+$$
+V_a = \operatorname{Ad}_{T_{ab}} V_b
+$$
+
+意思是：同一个刚体运动，如果在 `{b}` 里写成 $V_b$，那么在 `{a}` 里就写成 $V_a$。
+
+### 7.6 为什么 Ad 不只是旋转
+
+因为 twist 不是普通 3 维向量，而是
+
+$$
+V=
+\begin{bmatrix}
+\omega\\
+v
+\end{bmatrix}
+$$
+
+其中：
+
+- $\omega$ 受姿态旋转影响
+- $v$ 不仅受旋转影响，还受参考点平移影响
+
+所以 Adjoint 里除了两个 $R$ 之外，还会多出耦合项 $[p]R$。
+
+### 7.7 例子：只有平移时的 Adjoint
+
+若
+
+$$
+R=I,\qquad
+p=
+\begin{bmatrix}
+1\\0\\0
+\end{bmatrix}
+$$
+
+则
+
+$$
+[p] =
+\begin{bmatrix}
+0&0&0\\
+0&0&-1\\
+0&1&0
+\end{bmatrix}
+$$
+
+因此
+
+$$
+\operatorname{Ad}_T =
+\begin{bmatrix}
+I&0\\
+[p]&I
+\end{bmatrix}
+$$
+
+若
+
+$$
+V=
+\begin{bmatrix}
+0\\0\\1\\0\\0\\0
+\end{bmatrix}
+$$
+
+表示绕 $z$ 轴纯转动，那么
+
+$$
+\operatorname{Ad}_T V =
+\begin{bmatrix}
+0\\0\\1\\0\\-1\\0
+\end{bmatrix}
+$$
+
+这说明：即使物理运动还是“绕 $z$ 转”，换了参考原点后，twist 的下半部分也会变。
 
 ### 7.4 例子：从轴上一点和 pitch 算出 screw axis
 
@@ -785,6 +937,159 @@ $$
 - $\tau$ 是力矩。
 
 wrench 和 twist 的对应关系非常重要，因为后面速度运动学、静力学、动力学都会用这个 6 维统一表达。
+
+### 9.1 力矩最基本的公式
+
+若一个力 $f$ 作用在相对参考点的位置 $r$ 上，则它对该参考点产生的力矩是：
+
+$$
+\tau = r \times f
+$$
+
+如果写成 wrench，则：
+
+$$
+F=
+\begin{bmatrix}
+\tau\\
+f
+\end{bmatrix}
+=
+\begin{bmatrix}
+r\times f\\
+f
+\end{bmatrix}
+$$
+
+前提是这里只有一个力，没有额外纯力矩。
+
+### 9.2 例子：由力和作用点求 wrench
+
+设
+
+$$
+r=
+\begin{bmatrix}
+2\\0\\0
+\end{bmatrix},
+\qquad
+f=
+\begin{bmatrix}
+0\\10\\0
+\end{bmatrix}
+$$
+
+则
+
+$$
+\tau = r\times f
+=
+\begin{bmatrix}
+2\\0\\0
+\end{bmatrix}
+\times
+\begin{bmatrix}
+0\\10\\0
+\end{bmatrix}
+=
+\begin{bmatrix}
+0\\0\\20
+\end{bmatrix}
+$$
+
+所以
+
+$$
+F=
+\begin{bmatrix}
+0\\0\\20\\0\\10\\0
+\end{bmatrix}
+$$
+
+这说明 wrench 上半部分不是随便写的，它来自力相对参考点的位置关系。
+
+### 9.3 wrench 的变换为什么带转置
+
+twist 的变换是：
+
+$$
+V_a = \operatorname{Ad}_{T_{ab}} V_b
+$$
+
+而 wrench 的变换是：
+
+$$
+F_b = \operatorname{Ad}_{T_{ab}}^T F_a
+$$
+
+或等价地：
+
+$$
+F_a = \operatorname{Ad}_{T_{ab}}^{-T} F_b
+$$
+
+之所以带转置，是因为要保证功率不变：
+
+$$
+V_a^T F_a = V_b^T F_b
+$$
+
+这就是 twist 和 wrench 是一对对偶量的意思。
+
+### 9.4 功率公式为什么是 $V^T F$
+
+把
+
+$$
+V=
+\begin{bmatrix}
+\omega\\
+v
+\end{bmatrix},
+\qquad
+F=
+\begin{bmatrix}
+\tau\\
+f
+\end{bmatrix}
+$$
+
+代入可得：
+
+$$
+V^T F = \omega^T\tau + v^T f
+$$
+
+这正是刚体瞬时机械功率：
+
+- $\omega^T\tau$ 是转动做功率
+- $v^T f$ 是平移做功率
+
+不是“算了两遍”，而是把同一个力对刚体做功分成平移部分和转动部分。
+
+### 9.5 例子：功率不变
+
+设
+
+$$
+V=
+\begin{bmatrix}
+0\\0\\2\\1\\0\\0
+\end{bmatrix},
+\qquad
+F=
+\begin{bmatrix}
+0\\0\\3\\4\\0\\0
+\end{bmatrix}
+$$
+
+则
+
+$$
+V^T F = 2\cdot3 + 1\cdot4 = 10
+$$
+
+换到别的坐标系后，$V$ 和 $F$ 的分量一般都会变，但只要它们按 Ad / Ad 的对偶规则去变，最后内积仍然必须等于 10。
 
 ### 9.1 例子：把一个力和一个力矩合成 wrench
 
