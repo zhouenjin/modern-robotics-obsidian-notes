@@ -1,41 +1,53 @@
-# Modern Robotics Obsidian Notes
+# Modern Robotics Obsidian Lecture Notes
 
-An Obsidian-friendly set of study notes for the core rigid-body motion topics in *Modern Robotics*.
+This repository contains an Obsidian-friendly set of lecture-style notes for the first four chapters of *Modern Robotics* by Kevin M. Lynch and Frank C. Park.
 
-## What is included
+## Scope
 
-- Concept notes for `SO(3)`, `so(3)`, `SE(3)`, and `se(3)`
-- Twist, screw axis, and pitch explanations
-- A derivation of `v = -ω × q + hω`
-- Worked examples with full calculations
-- A compact cheat sheet for fast review
+The current version focuses on Chapters 1 through 4:
+
+- Chapter 1: Preview
+- Chapter 2: Configuration Space
+- Chapter 3: Rigid-Body Motions
+- Chapter 4: Forward Kinematics
+
+These notes are organized as course notes rather than problem-solving sheets. The emphasis is on:
+
+- conceptual structure;
+- chapter-to-chapter continuity;
+- clean mathematical notation for Obsidian using `$...$` and `$$...$$`;
+- review-friendly internal links and summary blocks.
 
 ## Vault structure
 
-- `00-首页.md`: main entry point
-- `01-知识地图/`: overview and concept map
-- `02-旋转与刚体运动/`: rotation and rigid-body motion foundations
-- `03-Twist与Screw/`: screw theory core notes
-- `04-指数映射与位姿/`: exponential-map notes
-- `05-例题/`: worked examples
-- `99-速查/`: last-minute review page
+- `00-首页.md`: main dashboard
+- `01-总览与方法/`: course map and note-taking guidance
+- `02-第1章 Preview/`: chapter 1 notes
+- `03-第2章 Configuration Space/`: chapter 2 notes
+- `04-第3章 Rigid-Body Motions/`: chapter 3 notes
+- `05-第4章 Forward Kinematics/`: chapter 4 notes
+- `99-附录与速查/`: notation and quick-reference appendix
 
 ## Recommended reading order
 
 1. `00-首页.md`
-2. `01-知识地图/课程知识地图.md`
-3. `02-旋转与刚体运动/`
-4. `03-Twist与Screw/`
-5. `04-指数映射与位姿/`
-6. `05-例题/`
-7. `99-速查/Modern Robotics 速查表.md`
+2. `01-总览与方法/课程地图与使用说明.md`
+3. `02-第1章 Preview/第1章 Preview：课程全景.md`
+4. `03-第2章 Configuration Space/第2章 Configuration Space：构型空间.md`
+5. `04-第3章 Rigid-Body Motions/第3章 Rigid-Body Motions：刚体运动.md`
+6. `05-第4章 Forward Kinematics/第4章 Forward Kinematics：正运动学.md`
+7. `99-附录与速查/符号约定、公式写法与章节速查.md`
 
-## Obsidian usage tips
+## Sources
 
-- Use backlinks to jump between formula, derivation, and worked-example notes.
-- Open graph view to see how `SO(3)` expands into `SE(3)`-related concepts.
-- Keep `00-首页.md` pinned as the main dashboard.
+The chapter organization follows the official *Modern Robotics* chapter pages and the Northwestern-hosted book preprint.
+
+- Course resources: <https://modernrobotics.northwestern.edu/nu-gm-book-resource/>
+- Book preprint: <https://hades.mech.northwestern.edu/images/8/81/MR-largefont.pdf>
+- Chapter 2 page: <https://modernrobotics.northwestern.edu/chapters/chapter2/>
+- Chapter 3 page: <https://modernrobotics.northwestern.edu/chapters/chapter3/>
+- Chapter 4 page: <https://modernrobotics.northwestern.edu/chapters/chapter4/>
 
 ## License
 
-This repository is released under the MIT License. See `LICENSE` for details.
+Released under the MIT License. See `LICENSE`.
