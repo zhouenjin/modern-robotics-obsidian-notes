@@ -530,4 +530,5 @@ Chapter 4 的意义在于：
 
 - 前置章节：[[04-第3章 Rigid-Body Motions/第3章 Rigid-Body Motions：刚体运动]]
 - 总导航：[[01-总览与方法/课程地图与使用说明]]
+- 后续章节：[[06-第5章 Velocity Kinematics and Statics/第5章 Velocity Kinematics and Statics：速度运动学与静力学]]
 - 附录：[[99-附录与速查/符号约定、公式写法与章节速查]]
