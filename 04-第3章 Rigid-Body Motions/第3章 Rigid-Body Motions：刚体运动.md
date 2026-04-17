@@ -69,6 +69,99 @@ $$
 - 组合自然，直接可乘；
 - 与后续 $SE(3)$、Adjoint、PoE 全部兼容。
 
+### 3.4 例子：绕 $z$ 轴旋转 $90^\circ$ 的旋转矩阵
+
+令单位轴为：
+
+$$
+\hat{\omega} =
+\begin{bmatrix}
+0 \\
+0 \\
+1
+\end{bmatrix}
+$$
+
+令旋转角为：
+
+$$
+\theta = \frac{\pi}{2}
+$$
+
+则对应的反对称矩阵是：
+
+$$
+[\hat{\omega}] =
+\begin{bmatrix}
+0 & -1 & 0 \\
+1 & 0 & 0 \\
+0 & 0 & 0
+\end{bmatrix}
+$$
+
+使用 Rodrigues 公式：
+
+$$
+R = I + \sin\theta[\hat{\omega}] + (1-\cos\theta)[\hat{\omega}]^2
+$$
+
+先代入：
+
+$$
+\sin\frac{\pi}{2} = 1, \qquad \cos\frac{\pi}{2} = 0
+$$
+
+因此：
+
+$$
+R = I + [\hat{\omega}] + [\hat{\omega}]^2
+$$
+
+再算：
+
+$$
+[\hat{\omega}]^2 =
+\begin{bmatrix}
+-1 & 0 & 0 \\
+0 & -1 & 0 \\
+0 & 0 & 0
+\end{bmatrix}
+$$
+
+所以：
+
+$$
+R =
+\begin{bmatrix}
+1 & 0 & 0 \\
+0 & 1 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
++
+\begin{bmatrix}
+0 & -1 & 0 \\
+1 & 0 & 0 \\
+0 & 0 & 0
+\end{bmatrix}
++
+\begin{bmatrix}
+-1 & 0 & 0 \\
+0 & -1 & 0 \\
+0 & 0 & 0
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 & -1 & 0 \\
+1 & 0 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+这个计算告诉你：
+
+- $x$ 轴方向被转到了 $y$ 轴方向；
+- 旋转矩阵不是抽象符号，而是能直接算出来的姿态对象。
+
 ## 4. 角速度与 so(3)
 
 ### 4.1 角速度向量
@@ -110,6 +203,65 @@ $$
 
 这为旋转和刚体运动提供了统一的“生成”视角。
 
+### 4.4 例子：角速度如何产生瞬时线速度
+
+设刚体绕 $z$ 轴以角速度
+
+$$
+\omega =
+\begin{bmatrix}
+0 \\
+0 \\
+2
+\end{bmatrix}
+$$
+
+转动，考察刚体上一点：
+
+$$
+p =
+\begin{bmatrix}
+1 \\
+0 \\
+0
+\end{bmatrix}
+$$
+
+该点瞬时线速度由叉乘给出：
+
+$$
+\dot{p} = \omega \times p
+$$
+
+代入计算：
+
+$$
+\omega \times p =
+\begin{bmatrix}
+0 \\
+0 \\
+2
+\end{bmatrix}
+\times
+\begin{bmatrix}
+1 \\
+0 \\
+0
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+2 \\
+0
+\end{bmatrix}
+$$
+
+这说明：
+
+- 点 $p$ 沿正 $y$ 方向运动；
+- 角速度向量描述的是“整个刚体怎么转”；
+- 点的线速度是由转动和点相对轴的位置共同决定的。
+
 ## 5. 旋转的指数坐标
 
 ### 5.1 轴角表示
@@ -135,6 +287,55 @@ $$
 
 - 旋转不再只是一个几何图形；
 - 它成为由李代数元素生成的群元素。
+
+### 5.3 例子：把轴角坐标恢复成旋转矩阵
+
+若指数坐标为：
+
+$$
+\omega =
+\begin{bmatrix}
+0 \\
+0 \\
+\frac{\pi}{3}
+\end{bmatrix}
+$$
+
+则它表示：
+
+- 单位轴 $\hat{\omega} = (0,0,1)^T$；
+- 角度 $\theta = \frac{\pi}{3}$。
+
+利用 Rodrigues 公式：
+
+$$
+R =
+\begin{bmatrix}
+\cos\theta & -\sin\theta & 0 \\
+\sin\theta & \cos\theta & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+代入：
+
+$$
+\cos\frac{\pi}{3} = \frac{1}{2}, \qquad
+\sin\frac{\pi}{3} = \frac{\sqrt{3}}{2}
+$$
+
+得到：
+
+$$
+R =
+\begin{bmatrix}
+\frac{1}{2} & -\frac{\sqrt{3}}{2} & 0 \\
+\frac{\sqrt{3}}{2} & \frac{1}{2} & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+这展示了“指数坐标”和“旋转矩阵”之间的来回转换。
 
 ## 6. 从姿态到位姿：$SE(3)$
 
@@ -170,6 +371,73 @@ $$
 3. 对一个向量或一个坐标系施加位姿变换。
 
 这三个“用法”如果在脑中不分清，后面常会把左乘、右乘、换坐标、真位移混在一起。
+
+### 6.3 例子：一个平面位姿如何写成 $SE(3)$ 矩阵
+
+设一个刚体在平面内：
+
+- 绕 $z$ 轴旋转 $90^\circ$；
+- 同时平移到点 $(2,1,0)$。
+
+根据前面的旋转结果：
+
+$$
+R =
+\begin{bmatrix}
+0 & -1 & 0 \\
+1 & 0 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+平移向量为：
+
+$$
+p =
+\begin{bmatrix}
+2 \\
+1 \\
+0
+\end{bmatrix}
+$$
+
+所以：
+
+$$
+T =
+\begin{bmatrix}
+0 & -1 & 0 & 2 \\
+1 & 0 & 0 & 1 \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+如果作用在齐次点
+
+$$
+\bar{x} =
+\begin{bmatrix}
+1 \\
+0 \\
+0 \\
+1
+\end{bmatrix}
+$$
+
+上，则：
+
+$$
+T\bar{x} =
+\begin{bmatrix}
+2 \\
+2 \\
+0 \\
+1
+\end{bmatrix}
+$$
+
+这说明原来位于局部 $x$ 轴上的点，被先转再移，落到了世界坐标中的 $(2,2,0)$。
 
 ## 7. Twist：统一描述刚体速度
 
@@ -238,6 +506,131 @@ $$
 se(3)
 $$
 
+### 7.4 例子：从轴上一点和 pitch 算出 screw axis
+
+设一条 screw axis 满足：
+
+- 方向为
+
+$$
+\hat{s} =
+\begin{bmatrix}
+0 \\
+0 \\
+1
+\end{bmatrix}
+$$
+
+- 轴上一点为
+
+$$
+q =
+\begin{bmatrix}
+1 \\
+0 \\
+0
+\end{bmatrix}
+$$
+
+- pitch 为
+
+$$
+h = 2
+$$
+
+根据公式：
+
+$$
+S =
+\begin{bmatrix}
+\hat{s} \\
+-\hat{s} \times q + h\hat{s}
+\end{bmatrix}
+$$
+
+先算叉乘：
+
+$$
+\hat{s} \times q =
+\begin{bmatrix}
+0 \\
+0 \\
+1
+\end{bmatrix}
+\times
+\begin{bmatrix}
+1 \\
+0 \\
+0
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+1 \\
+0
+\end{bmatrix}
+$$
+
+因此：
+
+$$
+-\hat{s} \times q =
+\begin{bmatrix}
+0 \\
+-1 \\
+0
+\end{bmatrix}
+$$
+
+再算：
+
+$$
+h\hat{s} =
+2
+\begin{bmatrix}
+0 \\
+0 \\
+1
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+0 \\
+2
+\end{bmatrix}
+$$
+
+于是：
+
+$$
+-\hat{s} \times q + h\hat{s} =
+\begin{bmatrix}
+0 \\
+-1 \\
+2
+\end{bmatrix}
+$$
+
+最终：
+
+$$
+S =
+\begin{bmatrix}
+0 \\
+0 \\
+1 \\
+0 \\
+-1 \\
+2
+\end{bmatrix}
+$$
+
+这个例子把三件事放在了一起：
+
+- 轴的方向来自上半部分；
+- 轴的位置进入下半部分的叉乘项；
+- pitch 决定沿轴推进的分量。
+
 ## 8. 刚体运动的指数坐标
 
 ### 8.1 从 twist 到位姿
@@ -269,6 +662,109 @@ flowchart LR
 - 旋转是刚体运动的一个特例；
 - $SO(3)$ 到 $SE(3)$ 的扩展，核心就是把旋转推广成 screw motion。
 
+### 8.3 例子：由 screw axis 指数映射得到刚体位姿
+
+继续使用上一节得到的：
+
+$$
+S =
+\begin{bmatrix}
+0 \\
+0 \\
+1 \\
+0 \\
+-1 \\
+2
+\end{bmatrix}
+$$
+
+令：
+
+$$
+\theta = \frac{\pi}{2}
+$$
+
+则旋转部分是绕 $z$ 轴转 $90^\circ$：
+
+$$
+R =
+\begin{bmatrix}
+0 & -1 & 0 \\
+1 & 0 & 0 \\
+0 & 0 & 1
+\end{bmatrix}
+$$
+
+平移部分使用：
+
+$$
+p =
+\left(
+I\theta + (1-\cos\theta)[\omega] + (\theta-\sin\theta)[\omega]^2
+\right)v
+$$
+
+其中
+
+$$
+\omega =
+\begin{bmatrix}
+0 \\
+0 \\
+1
+\end{bmatrix},
+\qquad
+v =
+\begin{bmatrix}
+0 \\
+-1 \\
+2
+\end{bmatrix}
+$$
+
+因为：
+
+$$
+\sin\frac{\pi}{2}=1,\qquad \cos\frac{\pi}{2}=0
+$$
+
+所以：
+
+$$
+p =
+\left(
+I\frac{\pi}{2} + [\omega] + \left(\frac{\pi}{2}-1\right)[\omega]^2
+\right)v
+$$
+
+逐项计算后可得：
+
+$$
+p =
+\begin{bmatrix}
+1 \\
+-1 \\
+\pi
+\end{bmatrix}
+$$
+
+因此：
+
+$$
+T =
+\begin{bmatrix}
+0 & -1 & 0 & 1 \\
+1 & 0 & 0 & -1 \\
+0 & 0 & 1 & \pi \\
+0 & 0 & 0 & 1
+\end{bmatrix}
+$$
+
+这就是一个完整的“拧螺丝”结果：
+
+- 姿态转了 $90^\circ$；
+- 同时沿螺旋轴方向前进了 $\pi$。
+
 ## 9. Wrench：统一描述力与力矩
 
 第 `3.4` 节把力学对象也写成 6 维向量。
@@ -289,6 +785,57 @@ $$
 - $\tau$ 是力矩。
 
 wrench 和 twist 的对应关系非常重要，因为后面速度运动学、静力学、动力学都会用这个 6 维统一表达。
+
+### 9.1 例子：把一个力和一个力矩合成 wrench
+
+设末端受到：
+
+- 力
+
+$$
+f =
+\begin{bmatrix}
+3 \\
+0 \\
+0
+\end{bmatrix}
+$$
+
+- 力矩
+
+$$
+\tau =
+\begin{bmatrix}
+0 \\
+0 \\
+2
+\end{bmatrix}
+$$
+
+则对应 wrench 为：
+
+$$
+F =
+\begin{bmatrix}
+\tau \\
+f
+\end{bmatrix}
+=
+\begin{bmatrix}
+0 \\
+0 \\
+2 \\
+3 \\
+0 \\
+0
+\end{bmatrix}
+$$
+
+它表示：
+
+- 下半部分是“推/拉”的线力；
+- 上半部分是“扭”的力矩；
+- 课程把这两者统一打包，是为了和 twist 形成速度-力的配对框架。
 
 ## 10. 本章最重要的几个结构对应
 
@@ -338,3 +885,15 @@ wrench 和 twist 的对应关系非常重要，因为后面速度运动学、静
 
 - 它建立在 [[03-第2章 Configuration Space/第2章 Configuration Space：构型空间]] 对 configuration 的讨论之上。
 - 它直接服务于 [[05-第4章 Forward Kinematics/第4章 Forward Kinematics：正运动学]] 中的 PoE 公式。
+
+## 14. 本章串联例子总结
+
+> [!example]
+> 这一章的例子实际上是一条连续链：
+> - 先从绕 $z$ 轴的旋转矩阵开始；
+> - 再看角速度如何给点产生线速度；
+> - 接着把姿态升级成位姿矩阵；
+> - 再把单关节写成 screw axis；
+> - 最后用指数映射得到完整位姿。
+
+如果这条链你能自己重算一遍，Chapter 3 的主干就抓住了。
