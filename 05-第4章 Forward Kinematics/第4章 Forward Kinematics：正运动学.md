@@ -29,6 +29,212 @@ $$
 
 可以看到，这一章的核心几乎全部围绕 PoE 公式展开。
 
+## 2.1 本章先抓住的两套流程
+
+这一章最容易混的是：
+
+- `M` 是什么；
+- `S_i` 和 `B_i` 到底怎么找；
+- 为什么 space 版左乘、body 版右乘；
+- 求正运动学时到底先做什么、后做什么。
+
+先把流程记住，再看细节。
+
+### 2.1.1 Space 版 PoE 三步法
+
+如果用空间坐标系 `{s}` 表达，各关节 screw axis 记为 $S_1,\dots,S_n$，则流程是：
+
+1. 先找零位姿
+   $$
+   M = T_{sb}(0)
+   $$
+   含义：所有关节变量都等于 0 时，末端 `{b}` 相对 `{s}` 的位姿。
+2. 再找每个关节在零位时的 space screw axis
+   $$
+   S_1,\dots,S_n
+   $$
+   注意：都是在 `\theta = 0` 时、并且用 `{s}` 表达。
+3. 最后代入关节值做 PoE
+   $$
+   T(\theta)=e^{[S_1]\theta_1}e^{[S_2]\theta_2}\cdots e^{[S_n]\theta_n}M
+   $$
+
+你可以把它理解成：
+
+> 当前位姿 = 各关节运动在 space frame 中依次左乘到零位姿上
+
+### 2.1.2 Body 版 PoE 三步法
+
+如果用末端本体坐标系 `{b}` 表达，各关节 screw axis 记为 $B_1,\dots,B_n$，则流程是：
+
+1. 还是先找零位姿
+   $$
+   M = T_{sb}(0)
+   $$
+2. 再找每个关节在零位时的 body screw axis
+   $$
+   B_1,\dots,B_n
+   $$
+   注意：同样是在 `\theta = 0` 时，但这次是用 `{b}` 表达。
+3. 最后代入关节值做 PoE
+   $$
+   T(\theta)=M e^{[B_1]\theta_1}e^{[B_2]\theta_2}\cdots e^{[B_n]\theta_n}
+   $$
+
+你可以把它理解成：
+
+> 当前位姿 = 零位姿右边依次乘上各关节在 body frame 中写出的运动
+
+### 2.1.3 两套写法的最短对照
+
+| 版本 | screw axis 用谁表达 | PoE 写法 | 记忆方式 |
+| --- | --- | --- | --- |
+| space 版 | `{s}` | $T(\theta)=e^{[S_1]\theta_1}\cdots e^{[S_n]\theta_n}M$ | 空间量左乘 |
+| body 版 | `{b}` | $T(\theta)=M e^{[B_1]\theta_1}\cdots e^{[B_n]\theta_n}$ | 本体量右乘 |
+
+最短记忆：
+
+- `S_i` 写在 `{s}` 里，所以左乘
+- `B_i` 写在 `{b}` 里，所以右乘
+
+## 2.2 怎么从图上找一个关节的 screw axis
+
+这一段是做题时最实用的流程。无论求 $S_i$ 还是 $B_i$，本质都一样，只是最后“用哪个坐标系表达”不同。
+
+### 2.2.1 总流程
+
+1. 先判断关节类型
+   - revolute：$\omega \neq 0$
+   - prismatic：$\omega = 0$
+2. 如果是转动关节，先看它绕哪根轴转
+   - 轴方向就是 $\omega$
+   - 再用题目要求的坐标系把它写出来
+3. 再找转轴上任意一点
+   $$
+   q
+   $$
+4. 若是纯转动关节，用
+   $$
+   v=-\omega\times q
+   $$
+5. 若是一般螺旋轴，用
+   $$
+   v=-\omega\times q+h\omega
+   $$
+6. 最后拼成
+   $$
+   S \text{ 或 } B=
+   \begin{bmatrix}
+   \omega\\
+   v
+   \end{bmatrix}
+   $$
+
+### 2.2.2 `omega` 怎么看
+
+`omega` 不是先算出来的，通常是先从图上看出来的。
+
+规则很简单：
+
+- 转动关节：`omega` 等于关节转轴方向
+- 移动关节：`omega = 0`
+
+例如平面机械臂里，所有 revolute joint 都绕垂直纸面的轴转，所以常常直接有
+
+$$
+\omega=
+\begin{bmatrix}
+0\\0\\1
+\end{bmatrix}
+$$
+
+或者如果方向相反，就是
+
+$$
+\omega=
+\begin{bmatrix}
+0\\0\\-1
+\end{bmatrix}
+$$
+
+### 2.2.3 `v` 怎么来
+
+`v` 才通常是算出来的。
+
+纯转动关节最常见：
+
+$$
+v=-\omega\times q
+$$
+
+意思是：
+
+- `omega` 告诉你转轴方向
+- `q` 告诉你转轴在空间中的位置
+- 两者一起确定这根轴对应的 screw axis 下半部分
+
+### 2.2.4 一个你刚问过的典型例子
+
+课上有一个 body screw axis 的例子：
+
+$$
+\omega_1=
+\begin{bmatrix}
+0\\0\\1
+\end{bmatrix},
+\qquad
+q_1=
+\begin{bmatrix}
+-3\\0\\0
+\end{bmatrix}
+$$
+
+这里 $\omega_1$ 不是算出来的，而是直接看第 1 个关节的转轴方向得到的。
+
+因为它是平面机构中的转动关节，转轴垂直纸面，所以
+
+$$
+\omega_1=\hat{z}
+$$
+
+然后再算
+
+$$
+v_1=-\omega_1\times q_1
+=
+-\begin{bmatrix}
+0\\0\\1
+\end{bmatrix}
+\times
+\begin{bmatrix}
+-3\\0\\0
+\end{bmatrix}
+=
+\begin{bmatrix}
+0\\3\\0
+\end{bmatrix}
+$$
+
+于是
+
+$$
+B_1=
+\begin{bmatrix}
+\omega_1\\
+v_1
+\end{bmatrix}
+=
+\begin{bmatrix}
+0\\0\\1\\0\\3\\0
+\end{bmatrix}
+$$
+
+这个例子最该记住的是：
+
+- `omega` 靠看转轴方向
+- `v` 靠公式算
+- 最后再拼成 `S_i` 或 `B_i`
+
 ## 3. 为什么正运动学建立在第 3 章之上
 
 第 3 章已经准备好了三样东西：
