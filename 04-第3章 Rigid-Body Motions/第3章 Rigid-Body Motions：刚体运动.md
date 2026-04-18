@@ -29,6 +29,330 @@ tags:
 - `3.3.3` Exponential Coordinates of Rigid-Body Motion
 - `3.4` Wrenches
 
+## 2.1 第 3 章变量关系总览
+
+这一章最容易乱的，不是公式本身，而是：
+
+- 这个变量到底在表示什么；
+- 它和前一个变量是什么关系；
+- 它是拿来描述姿态、位姿、速度还是受力；
+- 它是在 `{s}` 里表达，还是在 `{b}` 里表达。
+
+先把主线抓住：
+
+```mermaid
+flowchart TD
+    A["只描述朝向"] --> B["R in SO(3)"]
+    B --> C["用 [omega] 放进 so(3)"]
+    C --> D["R = e^([hat(omega)] theta)"]
+    D --> E["再加位置 p"]
+    E --> F["T = [R p; 0 1] in SE(3)"]
+    F --> G["描述瞬时运动 V = [omega; v]"]
+    G --> H["把运动写成 screw axis: S 或 B"]
+    H --> I["V = S dot(theta) 或 V_b = B dot(theta)"]
+    I --> J["把速度写成矩阵 [V] in se(3)"]
+    J --> K["坐标变换靠 Ad_T"]
+    K --> L["受力统一写成 F = [tau; f]"]
+    L --> M["功率配对: V^T F"]
+```
+
+### 2.1.1 一张表先看全
+
+| 变量 | 含义 | 类型/维度 | 解决什么问题 | 和谁有关 |
+| --- | --- | --- | --- | --- |
+| $R$ | 姿态 | $3\times 3$ | 刚体朝哪个方向 | 属于 $SO(3)$ |
+| $\omega$ | 角速度 | $3\times 1$ | 刚体转得多快、绕哪根轴转 | 可写成 $[\omega]$ |
+| $[\omega]$ | 角速度的反对称矩阵 | $3\times 3$ | 让旋转能写成矩阵指数 | 属于 $so(3)$ |
+| $\hat{\omega}\theta$ | 旋转指数坐标 | $3\times 1$ | 用“轴 + 角度”压缩描述旋转 | 导出 $R=e^{[\hat{\omega}]\theta}$ |
+| $p$ | 位置 | $3\times 1$ | 刚体原点在哪里 | 和 $R$ 一起组成 $T$ |
+| $T$ | 位姿 | $4\times 4$ | 刚体既朝哪又在哪 | 属于 $SE(3)$ |
+| $T_{ab}$ | `{b}` 相对 `{a}` 的位姿，并在 `{a}` 中表达 | $4\times 4$ | 多坐标系之间不混 | 用于 `Ad`、点变换、位姿连乘 |
+| $V$ | twist，刚体瞬时速度 | $6\times 1$ | 统一描述转动 + 平移 | 上半部是 $\omega$，下半部是 $v$ |
+| $v$ | twist 的线速度部分 | $3\times 1$ | 配合 $\omega$ 共同决定整刚体速度场 | 不等于“任意点速度” |
+| $S$ | space screw axis | $6\times 1$ | 在空间坐标系里描述运动轴 | 满足 $V_s=S\dot{\theta}$ |
+| $B$ | body screw axis | $6\times 1$ | 在本体坐标系里描述运动轴 | 满足 $V_b=B\dot{\theta}$ |
+| $[V]$ | twist 的矩阵形式 | $4\times 4$ | 进入 $se(3)$ 和指数映射 | 用于 $e^{[S]\theta}$ |
+| $F$ | wrench，受力 | $6\times 1$ | 统一描述力和力矩 | $F=[\tau;f]$ |
+| $f$ | 力 | $3\times 1$ | 表示推/拉 | 和 $\tau$ 组成 wrench |
+| $\tau$ | 力矩 | $3\times 1$ | 表示转动效应 | 常由 $\tau=r\times f$ 算出 |
+| $\operatorname{Ad}_T$ | Adjoint 变换 | $6\times 6$ | 把 twist / screw axis 在不同坐标系改写 | 由 $T$ 导出 |
+
+### 2.1.2 这章的逻辑顺序
+
+这章不是在堆概念，而是在依次回答 4 个问题：
+
+1. 刚体朝哪边，怎么写？
+2. 刚体不仅会转，还会平移，怎么一起写？
+3. 刚体正在怎么动，怎么统一写？
+4. 刚体受了什么力，怎么统一写？
+
+所以变量是按下面顺序出现的：
+
+$$
+R \rightarrow T \rightarrow V \rightarrow S/B \rightarrow [V] \rightarrow F \rightarrow \operatorname{Ad}_T
+$$
+
+不是谁都平级。
+
+- `R` 是姿态基础量；
+- `T` 是在 `R` 基础上加位置；
+- `V` 是位姿的瞬时变化；
+- `S/B` 是“单位关节速度下的 twist”；
+- `[V]` 是为了进入矩阵指数和李代数；
+- `F` 是运动的对偶量；
+- `Ad_T` 是为了跨坐标系表达这些量。
+
+### 2.1.3 最核心的几组关系
+
+#### 1. 姿态相关
+
+$$
+R \in SO(3), \qquad R^T R = I, \qquad \det(R)=1
+$$
+
+作用：判断一个矩阵是不是合法旋转矩阵。
+
+$$
+[\omega] =
+\begin{bmatrix}
+0 & -\omega_3 & \omega_2 \\
+\omega_3 & 0 & -\omega_1 \\
+-\omega_2 & \omega_1 & 0
+\end{bmatrix}
+$$
+
+作用：把角速度向量变成矩阵，好进入指数映射。
+
+$$
+R = e^{[\hat{\omega}]\theta}
+$$
+
+作用：从“转轴 + 转角”恢复旋转矩阵。
+
+#### 2. 位姿相关
+
+$$
+T =
+\begin{bmatrix}
+R & p \\
+0 & 1
+\end{bmatrix}
+$$
+
+作用：把姿态和位置统一成一个对象。
+
+$$
+T_{ab}
+$$
+
+含义：`{b}` 相对 `{a}` 的位姿，用 `{a}` 表达。
+
+这就是为什么后面会有：
+
+- 用 $T_{ab}$ 把 `{b}` 里的量改写到 `{a}`；
+- 用 $T_{sb}$、$T_{bs}$ 区分谁相对谁。
+
+#### 3. 速度相关
+
+$$
+V =
+\begin{bmatrix}
+\omega \\
+v
+\end{bmatrix}
+$$
+
+作用：统一写刚体瞬时运动。
+
+这里最容易误解的是 $v$。
+
+$v$ 不是“刚体上某个点的速度”，而是 twist 里的线速度部分。  
+它和 $\omega$ 一起决定整个刚体的速度场：
+
+$$
+\dot{p} = \omega \times p + v
+$$
+
+如果运动沿一根 screw axis 发生，则
+
+$$
+S =
+\begin{bmatrix}
+\omega \\
+v
+\end{bmatrix},
+\qquad
+V = S\dot{\theta}
+$$
+
+如果在 body frame 里写，就变成
+
+$$
+V_b = B\dot{\theta}
+$$
+
+所以：
+
+- `S` / `B` 说的是“这根运动轴是什么”；
+- `V` / `V_b` 说的是“现在实际动得多快”。
+
+当 $\dot{\theta}=1$ 时，`twist = screw axis`。
+
+#### 4. screw axis 几何相关
+
+若已知：
+
+- 单位轴方向 $\omega$；
+- 轴上一点 $q$；
+- pitch $h$；
+
+则
+
+$$
+S =
+\begin{bmatrix}
+\omega \\
+v
+\end{bmatrix},
+\qquad
+v = -\omega \times q + h\omega
+$$
+
+作用：把“轴在哪里、沿轴有没有推进”翻译成 twist 下半部分。
+
+这是你前面一直问的那条最关键公式。
+
+它的用途是：
+
+- 从几何轴构造 screw axis；
+- 进而写出 $V=S\dot{\theta}$；
+- 再进而写出 $e^{[S]\theta}$。
+
+#### 5. 李代数相关
+
+$$
+[V] =
+\begin{bmatrix}
+[\omega] & v \\
+0 & 0
+\end{bmatrix}
+\in se(3)
+$$
+
+作用：把 6 维 twist 写成矩阵形式，方便做指数映射：
+
+$$
+T = e^{[S]\theta}
+$$
+
+这解决的是“怎样从瞬时运动恢复有限位姿变化”。
+
+#### 6. 受力相关
+
+$$
+F =
+\begin{bmatrix}
+\tau \\
+f
+\end{bmatrix}
+$$
+
+作用：统一写力和力矩。
+
+其中
+
+$$
+\tau = r \times f
+$$
+
+表示力 $f$ 对参考点产生的力矩。
+
+功率统一写成
+
+$$
+V^T F = \omega^T \tau + v^T f
+$$
+
+作用：说明 twist 和 wrench 是一对配对量。
+
+#### 7. 坐标变换相关
+
+若
+
+$$
+T =
+\begin{bmatrix}
+R & p \\
+0 & 1
+\end{bmatrix}
+$$
+
+则
+
+$$
+\operatorname{Ad}_T =
+\begin{bmatrix}
+R & 0 \\
+[p]R & R
+\end{bmatrix}
+$$
+
+作用：把 twist / screw axis 从一个坐标系改写到另一个坐标系。
+
+最常见公式：
+
+$$
+V_a = \operatorname{Ad}_{T_{ab}}V_b
+$$
+
+如果是 wrench，为了保持功率不变，会出现转置形式：
+
+$$
+F_b = \operatorname{Ad}_{T_{ab}}^T F_a
+$$
+
+### 2.1.4 变量最容易混的地方
+
+#### `S` 和 `V`
+
+- `S` 是 screw axis，偏几何、偏“模板”
+- `V` 是实际 twist，偏运动状态
+- 关系是 $V=S\dot{\theta}$
+
+#### `v` 和“某个点的线速度”
+
+- twist 里的 $v$ 不是任意点速度
+- 任意点速度要用 $\dot{p}=\omega\times p+v$
+
+#### `R`、`T`、`Ad_T`
+
+- `R` 只管旋转
+- `T` 管位姿
+- `Ad_T` 不直接表示位姿，它表示“6 维运动/受力量怎么换坐标”
+
+#### `S` 和 `B`
+
+- `S` 用 space frame 表达
+- `B` 用 body frame 表达
+- 几何运动是同一个，只是写法参考系不同
+
+#### `f`、`\tau`、`F`
+
+- `f` 是力
+- `\tau` 是力矩
+- `F` 是把两者打包后的 wrench
+
+### 2.1.5 一条最实用的复习线
+
+复习第 3 章时，直接按下面 6 句背：
+
+1. 姿态用 $R$ 表示，合法旋转矩阵属于 $SO(3)$。
+2. 旋转的生成元写成 $[\omega]\in so(3)$，并通过 $R=e^{[\hat{\omega}]\theta}$ 得到有限旋转。
+3. 位姿在姿态基础上加位置，写成 $T=\begin{bmatrix}R&p\\0&1\end{bmatrix}\in SE(3)$。
+4. 刚体瞬时运动写成 twist：$V=[\omega;v]$。
+5. 若运动沿 screw axis 发生，则 $V=S\dot{\theta}$，且 $v=-\omega\times q+h\omega$。
+6. 受力写成 wrench：$F=[\tau;f]$，跨坐标系改写靠 $\operatorname{Ad}_T$。
+
 ## 3. 旋转的表示：从直觉到矩阵
 
 ### 3.1 右手定则和坐标系
