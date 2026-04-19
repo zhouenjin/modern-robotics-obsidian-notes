@@ -1,10 +1,10 @@
 # Modern Robotics Obsidian Lecture Notes
 
-This repository contains an Obsidian-friendly set of lecture-style notes for the first six chapters of *Modern Robotics* by Kevin M. Lynch and Frank C. Park.
+This repository contains an Obsidian-friendly set of lecture-style notes for the first seven chapters of *Modern Robotics* by Kevin M. Lynch and Frank C. Park.
 
 ## Scope
 
-The current version focuses on Chapters 1 through 6:
+The current version focuses on Chapters 1 through 7:
 
 - Chapter 1: Preview
 - Chapter 2: Configuration Space
@@ -12,6 +12,7 @@ The current version focuses on Chapters 1 through 6:
 - Chapter 4: Forward Kinematics
 - Chapter 5: Velocity Kinematics and Statics
 - Chapter 6: Inverse Kinematics
+- Chapter 7: Kinematics of Closed Chains
 
 These notes are organized as course notes rather than problem-solving sheets. The emphasis is on:
 
@@ -30,6 +31,7 @@ These notes are organized as course notes rather than problem-solving sheets. Th
 - `05-第4章 Forward Kinematics/`: chapter 4 notes
 - `06-第5章 Velocity Kinematics and Statics/`: chapter 5 notes
 - `07-第6章 Inverse Kinematics/`: chapter 6 notes
+- `08-第7章 Kinematics of Closed Chains/`: chapter 7 notes
 - `99-附录与速查/`: notation and quick-reference appendix
 
 ## Recommended reading order
@@ -43,7 +45,8 @@ These notes are organized as course notes rather than problem-solving sheets. Th
 7. `05-第4章 Forward Kinematics/第4章 Forward Kinematics：正运动学.md`
 8. `06-第5章 Velocity Kinematics and Statics/第5章 Velocity Kinematics and Statics：速度运动学与静力学.md`
 9. `07-第6章 Inverse Kinematics/第6章 Inverse Kinematics：逆运动学.md`
-10. `99-附录与速查/符号约定、公式写法与章节速查.md`
+10. `08-第7章 Kinematics of Closed Chains/第7章 Kinematics of Closed Chains：闭链运动学.md`
+11. `99-附录与速查/符号约定、公式写法与章节速查.md`
 
 ## Sources
 
@@ -56,6 +59,7 @@ The chapter organization follows the official *Modern Robotics* chapter pages an
 - Chapter 4 page: <https://modernrobotics.northwestern.edu/chapters/chapter4/>
 - Chapter 5 page: <https://modernrobotics.northwestern.edu/chapters/chapter5/>
 - Chapter 6 page: <https://modernrobotics.northwestern.edu/chapters/chapter6/>
+- Chapter 7 page: <https://modernrobotics.northwestern.edu/chapters/chapter7/>
 
 ## License
 
